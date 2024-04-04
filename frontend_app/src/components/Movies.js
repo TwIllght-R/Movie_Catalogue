@@ -5,27 +5,24 @@ const Movies = () => {
 
 
     useEffect(() => {
-        let moviesList = [
-            {
-                id: 1,
-                title: "The Godfather",
-                release_date: "1972-03-24",
-                runtime: 175,
-                mpaa_rating: "R",
-                description: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+        const headers = new Headers();
+        headers.append('Content-Type', 'application/json');
 
-            },
-            {
-                id: 2,
-                title: "The Shawshank Redemption",
-                release_date: "1994-10-14",
-                runtime: 142,
-                mpaa_rating: "R",
-                description: "Two imprisoned",
-            },
-        ]
+        const requestOptions = {
+            method: 'GET',
+            headers: headers,
+        
+        }
 
-        setMovies(moviesList)
+        fetch(`http://localhost:8080/movies`, requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            setMovies(data)
+        })
+        .catch(error => console.log('error', error));
+
+       
+      
     }, [])
     return (
         <div >
