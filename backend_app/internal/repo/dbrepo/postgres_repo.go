@@ -56,3 +56,27 @@ func (r *PostgresRepo) AllMovies() ([]*models.Movie, error) {
 
 	return movies, nil
 }
+
+func (r *PostgresRepo) GetUserByEmail(email string) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	query := `select * from users where email = $1`
+
+	var user models.User
+	row := r.DB.QueryRowContext(ctx, query, email)
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+
+}
