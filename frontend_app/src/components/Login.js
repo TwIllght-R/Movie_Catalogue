@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Input from './form/input';
-import { useNavigate, useOutlet, useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { setJwtToken, setAlertClass, setAlertMessage } = useOutletContext();
+    const { setJwtToken, setAlertClass, setAlertMessage,toggleRefresh } = useOutletContext();
 
     const navigate = useNavigate();
 
@@ -29,9 +29,10 @@ const Login = () => {
                     setAlertClass('alert alert-danger');
                     setAlertMessage(data.message);
                 } else {
-                    setJwtToken(data.token);
-                    setAlertClass('alert alert-success');
-                    setAlertMessage('Login successful');
+                    setJwtToken(data.access_token);
+                    toggleRefresh(true);
+                    // setAlertClass('alert alert-success');
+                    // setAlertMessage('Login successful');
                     navigate('/');
                 }
 
