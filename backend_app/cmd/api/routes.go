@@ -23,7 +23,7 @@ func (app *application) routes() http.Handler {
 	//protected routes
 	mux.Route("/admin", func(r chi.Router) {
 		r.Use(app.authRequired)
-		mux.Get("/movies", app.MovieCatalogue)
+		r.Get("/movies", app.MovieCatalogue)
 	})
 
 	return mux

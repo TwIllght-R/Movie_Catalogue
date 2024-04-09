@@ -22,7 +22,7 @@ func (r *PostgresRepo) AllMovies() ([]*models.Movie, error) {
 	defer cancel()
 
 	query := `
-	SELECT id, title, release_date, run_time, mpaa_rating, description,coalesce(image, ''), created_at, updated_at 
+	SELECT id, title, release_date, runtime, mpaa_rating, description,coalesce(image, ''), created_at, updated_at 
 	FROM movies
 	order by title
 	`
