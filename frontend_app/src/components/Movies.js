@@ -13,13 +13,15 @@ const Movies = () => {
             headers: headers,
         
         }
-
         fetch(`/movies`, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-            setMovies(data)
+        .then((response) => response.json())
+        .then((data) => {
+            setMovies(data);
         })
-        .catch(error => console.log('error', error));
+        .catch(err => {
+            console.log(err);
+        })
+
 
        
       
