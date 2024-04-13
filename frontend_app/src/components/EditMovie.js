@@ -17,8 +17,8 @@ const EditMovie = () => {
         { id: "PG13", value: "PG13" },
         { id: "R", value: "R" },
         { id: "NC17", value: "NC17" },
-        { id: "18A", value: "18A"}
-    ]   
+        { id: "18A", value: "18A" }
+    ]
 
     const hasError = (key) => {
         return errors.indexOf(key) !== -1;
@@ -28,9 +28,9 @@ const EditMovie = () => {
         title: "",
         release_date: "",
         runtime: "",
-        mapp_rating: "",
+        mpaa_rating: "",
         description: "",
-        genres : "",
+        genres: "",
         genres_array: [Array(13).fill(false)],
     });
     let { id } = useParams();
@@ -39,7 +39,7 @@ const EditMovie = () => {
 
     }
 
-    useEffect(() => {  
+    useEffect(() => {
         if (jwtToken === "") {
             navigate('/login');
             return;
@@ -50,9 +50,9 @@ const EditMovie = () => {
                 title: "",
                 release_date: "",
                 runtime: "",
-                mapp_rating: "",
+                mpaa_rating: "",
                 description: "",
-                genres : "",
+                genres: "",
                 genres_array: [Array(13).fill(false)],
             });
             const headers = new Headers();
@@ -66,23 +66,50 @@ const EditMovie = () => {
                 .then(data => {
                     let checks = [];
                     data.forEach((g) => {
-                       checks.push({id: g.id, genre: g.genre, checked: false});
+                        checks.push({ id: g.id, genre: g.genre, checked: false });
                     });
-                    setMovie(m => ({ ...m, genres: checks, genres_array: []}));
+                    setMovie(m => ({ ...m, genres: checks, genres_array: [] }));
                 })
                 .catch(error => console.log('error', error));
-        }else {
+        } else {
 
         }
 
 
 
-    }, [id,jwtToken, navigate]);
+    }, [id, jwtToken, navigate]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    }
+    
+        let errors = [];
+        let required = [
+        { field: movie.title, name: "title" },
+        { field: movie.release_date, name: "release_date" },
+        { field: movie.runtime, name: "runtime" },
+        { field: movie.mpaa_rating, name: "mpaa_rating" },
+        { field: movie.description, name: "description" },
+    ];
+    
+        required.forEach((obj) => {
+            if (obj.field === "") {
+                errors.push(obj.name);
+            }
+        });
 
+        if (movie.genres_array.length === 0) {
+            alert("Please select at least one genre");
+            errors.push("genres");
+        }
+        
+
+
+        setErrors(errors);
+        if (errors.length > 0) {
+            return false;
+        }
+    };
+    
     const handleChange = () => (e) => {
         let value = e.target.value;
         let name = e.target.name;
@@ -101,8 +128,8 @@ const EditMovie = () => {
         let tmpIDs = movie.genres_array;
         if (!e.target.checked) {
             tmpIDs.splice(tmpIDs.indexOf(e.target.value));
-        }else {
-            tmpIDs.push(parseInt(e.target.value,10));
+        } else {
+            tmpIDs.push(parseInt(e.target.value, 10));
         }
 
         setMovie({ ...movie, genres_array: tmpIDs });
@@ -123,7 +150,7 @@ const EditMovie = () => {
                     type={"text"}
                     value={movie.title}
                     onChange={handleChange("title")}
-                    errorDiv={hasError("title") ? "alert alert-danger" : "d-none"}
+                    errorDiv={hasError("title") ? "text-danger" : "d-none"}
                     errorMsg={"Please enter a title"}
                 />
 
@@ -134,7 +161,7 @@ const EditMovie = () => {
                     type={"date"}
                     value={movie.release_date}
                     onChange={handleChange("release_date")}
-                    errorDiv={hasError("release") ? "alert alert-danger" : "d-none"}
+                    errorDiv={hasError("release_date") ? "text-danger" : "d-none"}
                     errorMsg={"Please enter a release date"}
                 />
 
@@ -145,7 +172,7 @@ const EditMovie = () => {
                     type={"text"}
                     value={movie.runtime}
                     onChange={handleChange("runtime")}
-                    errorDiv={hasError("runtime") ? "alert alert-danger" : "d-none"}
+                    errorDiv={hasError("runtime") ? "text-danger" : "d-none"}
                     errorMsg={"Please enter a runtime"}
                 />
 
@@ -155,7 +182,7 @@ const EditMovie = () => {
                     options={mpaaOptions}
                     placeholder={"Choose..."}
                     onChange={handleChange("mpaa_rating")}
-                    errorDiv={hasError("mpaa_rating") ? "alert alert-danger" : "d-none"}
+                    errorDiv={hasError("mpaa_rating") ? "text-danger" : "d-none"}
                     errorMsg={"Please choose a rating"}
                 />
 
@@ -165,32 +192,36 @@ const EditMovie = () => {
                     value={movie.description}
                     rows={3}
                     onChange={handleChange("description")}
-                    errorDiv={hasError("description") ? "alert alert-danger" : "d-none"}
+                    errorDiv={hasError("description") ? "text-danger" : "d-none"}
                     errorMsg={"Please enter a description"}
                 />
 
                 <hr />
 
                 <h3>Genres</h3>
-                {movie.genres && movie.genres.length > 1 && 
+                {movie.genres && movie.genres.length > 1 &&
                     <>
-                    {Array.from(movie.genres).map((g,index) => 
-                        <CheckBox 
-                            title = {g.genre}
-                            id = {"genre-" + index}
-                            name = {"genre"}
-                            key = {index}
-                            value = {g.id}
-                            checked = {movie.genres[index].checked}
-                            onChange = {(e) => handleCheck(e, index)}
-                        />
+                        {Array.from(movie.genres).map((g, index) =>
+                            <CheckBox
+                                title={g.genre}
+                                id={"genre-" + index}
+                                name={"genre"}
+                                key={index}
+                                value={g.id}
+                                checked={movie.genres[index].checked}
+                                onChange={(e) => handleCheck(e, index)}
+                            />
 
-                    )}
+                        )}
                     </>
                 }
-               
 
-                
+                <hr />
+
+                <button className="btn btn-primary">Save</button>
+
+
+
 
 
 
