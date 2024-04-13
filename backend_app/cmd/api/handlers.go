@@ -1,10 +1,12 @@
 package main
 
 import (
+	"backend_app/internal/models"
 	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -137,5 +139,59 @@ func (app *application) MovieCatalogue(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = app.writeJSON(w, http.StatusOK, movies)
+
+}
+
+func (app *application) GetMovie(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	movieID, err := strconv.Atoi(id)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	movie, err := app.DB.OneMovie(movieID)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	_ = app.writeJSON(w, http.StatusOK, movie)
+
+}
+
+func (app *application) MovieForEdit(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	movieID, err := strconv.Atoi(id)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	movies, genres, err := app.DB.OneMovieForEdit(movieID)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := struct {
+		Movies *models.Movie   `json:"movies"`
+		Genres []*models.Genre `json:"genres"`
+	}{
+		Movies: movies,
+		Genres: genres,
+	}
+
+	_ = app.writeJSON(w, http.StatusOK, payload)
+}
+
+func (app *application) AllGenres(w http.ResponseWriter, r *http.Request) {
+	genres, err := app.DB.AllGenres()
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	_ = app.writeJSON(w, http.StatusOK, genres)
 
 }

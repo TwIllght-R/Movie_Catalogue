@@ -19,11 +19,15 @@ func (app *application) routes() http.Handler {
 	mux.Post("/authenticate", app.authenticate)
 	mux.Get("/refresh", app.refreshToken)
 	mux.Get("/logout", app.logout)
+	mux.Get("/movie/{id}", app.GetMovie)
+
+	mux.Get("/genres", app.AllGenres)
 
 	//protected routes
 	mux.Route("/admin", func(r chi.Router) {
 		r.Use(app.authRequired)
 		r.Get("/movies", app.MovieCatalogue)
+		r.Get("/movie/{id}", app.MovieForEdit)
 	})
 
 	return mux
