@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
@@ -193,5 +194,78 @@ func (app *application) AllGenres(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = app.writeJSON(w, http.StatusOK, genres)
+
+}
+
+func (app *application) InsertMovie(w http.ResponseWriter, r *http.Request) {
+	var movie models.Movie
+	err := app.readJSON(w, r, &movie)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	movie.CreatedAt = time.Now()
+	movie.UpdatedAt = time.Now()
+	newID, err := app.DB.InsertMovie(movie)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	err = app.DB.UpdateMovieGenres(newID, movie.GenresArray)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	resp := JSONResponse{
+		Message: "Movie added successfully",
+		Error:   false,
+	}
+
+	_ = app.writeJSON(w, http.StatusCreated, resp)
+
+}
+
+func (app *application) UpdateMovie(w http.ResponseWriter, r *http.Request) {
+	var payload models.Movie
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	movie, err := app.DB.OneMovie(payload.ID)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	movie.Title = payload.Title
+	movie.ReleaseDate = payload.ReleaseDate
+	movie.RunTime = payload.RunTime
+	movie.MPAARating = payload.MPAARating
+	movie.Description = payload.Description
+	movie.Image = payload.Image
+	movie.UpdatedAt = time.Now()
+
+	err = app.DB.UpdateMovie(*movie)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	err = app.DB.UpdateMovieGenres(movie.ID, payload.GenresArray)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	resp := JSONResponse{
+		Message: "Movie updated successfully",
+		Error:   false,
+	}
+
+	_ = app.writeJSON(w, http.StatusCreated, resp)
 
 }
