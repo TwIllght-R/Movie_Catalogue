@@ -209,6 +209,30 @@ const EditMovie = () => {
 
         setMovie({ ...movie, genres_array: tmpIDs });
     }
+
+    const comfirmDelete = () => {
+        if (window.confirm("Are you sure you want to delete this movie?")) {
+            let headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            headers.append('Authorization', 'Bearer ' + jwtToken);
+            const requestOptions = {
+                method: 'DELETE',
+                headers: headers,
+            };
+            fetch(`/admin/movies/${movie.id}`, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        setError(data.error);
+                    } else {
+                        navigate('/manage-catalogue');
+                    }
+                })
+                .catch(error => console.log('error', error));
+        }
+        
+    }
+
     if (error) {
         return <div>Error: {error.message}</div>
     } else {
@@ -298,6 +322,9 @@ const EditMovie = () => {
 
                     <button className="btn btn-primary">Save</button>
 
+                    {movie.id > 0 &&
+                        <a href='#!' className='btn btn-danger ms-2' onClick={comfirmDelete}>Delete Movie</a>
+                    }
 
 
 
