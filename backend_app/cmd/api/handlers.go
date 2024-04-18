@@ -1,13 +1,17 @@
 package main
 
 import (
+	"backend_app/internal/graph"
 	"backend_app/internal/models"
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -290,5 +294,46 @@ func (app *application) DeleteMovie(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = app.writeJSON(w, http.StatusAccepted, resp)
+
+}
+
+func (app *application) AllMoviesByGenre(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	movieID, err := strconv.Atoi(id)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	movies, err := app.DB.AllMovies(movieID)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	_ = app.writeJSON(w, http.StatusOK, movies)
+
+}
+
+func (app *application) moviesGraphQL(w http.ResponseWriter, r *http.Request) {
+	movies, _ := app.DB.AllMovies()
+
+	q, _ := io.ReadAll(r.Body)
+	query := string(q)
+
+	g := graph.New(movies)
+
+	g.QueryString = query
+
+	resp, err := g.Query()
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	j, _ := json.Marshal(resp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(j)
 
 }
